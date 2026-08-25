@@ -12,7 +12,9 @@ from fastapi import FastAPI, Header, HTTPException
 from fault_state import SUPPORTED_APPLICATION_FAULTS, FaultState
 from pydantic import BaseModel, Field
 from redis import Redis
+from redis.backoff import NoBackoff
 from redis.exceptions import RedisError
+from redis.retry import Retry
 
 app = FastAPI(title="AIOps Fault Lab API")
 redis_client = Redis.from_url(
@@ -21,6 +23,7 @@ redis_client = Redis.from_url(
     # 依赖中断必须在健康探针超时前转成明确的 HTTP 503，不能让上游只看到连接超时。
     socket_connect_timeout=0.5,
     socket_timeout=0.5,
+    retry=Retry(NoBackoff(), 0),
 )
 fault_state = FaultState()
 lab_control_token = os.getenv("AIOPS_LAB_CONTROL_TOKEN", "")
