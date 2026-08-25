@@ -1,3 +1,4 @@
+/* 演练中心页面样式。 */
 .demo-flow {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
