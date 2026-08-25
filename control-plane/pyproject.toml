@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aiops-control-plane"
+version = "0.1.0"
+description = "单机热插拔 AIOps 控制面"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "grpcio>=1.76,<2",
+  "pydantic>=2.10,<3",
+  "protobuf>=5.29,<7",
+  "psycopg[binary]>=3.2,<4",
+  "PyYAML>=6,<7",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1",
+  "mypy>=1.15,<2",
+  "pytest>=8.3,<9",
+  "ruff>=0.11,<1",
+  "types-grpcio>=1.0,<2",
+  "types-protobuf>=5,<7",
+  "types-PyYAML>=6,<7",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aiops_control"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = ["src/aiops_control/generated"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["aiops_control", "aiops_plugin_sdk"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["aiops_control"]
+
+[[tool.mypy.overrides]]
+module = ["aiops_control.generated.*"]
+ignore_errors = true

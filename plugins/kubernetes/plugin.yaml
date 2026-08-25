@@ -1,0 +1,26 @@
+# Kubernetes 插件只在明确命名空间内变更工作负载，集群级权限仅用于只读节点发现。
+id: kubernetes
+name: Kubernetes 与 k3s 运维插件
+version: 0.1.0
+api_version: v1
+entrypoint: plugin.py
+checksum: sha256:2a82efb3cd8400919b4430fecd647384f41f1f375617d87b3ac31bbb91a6a783
+capabilities:
+  - DiscoveryProvider
+  - TelemetryProvider
+  - Analyzer
+  - ActionProvider
+permissions:
+  - kubernetes.nodes.read
+  - kubernetes.workloads.read
+  - kubernetes.events.read
+  - kubernetes.deployments.patch.allowed_namespaces
+config_schema:
+  type: object
+  additionalProperties: false
+  properties:
+    allowed_namespaces:
+      type: array
+      items:
+        type: string
+      description: 插件允许发现和执行动作的 Kubernetes 命名空间。

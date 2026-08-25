@@ -1,0 +1,57 @@
+# Kubernetes 插件使用独立 ServiceAccount；集群级权限只有节点只读。
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aiops-plugin
+  namespace: aiops-system
+---
+# 节点发现必须使用 ClusterRole，但不授予节点修改权限。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aiops-node-reader
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: aiops-node-reader
+subjects:
+  - kind: ServiceAccount
+    name: aiops-plugin
+    namespace: aiops-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: aiops-node-reader
+---
+# 所有写权限限制在 aiops-lab 命名空间和 Deployment 资源。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: aiops-lab-operator
+  namespace: aiops-lab
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale"]
+    verbs: ["get", "list", "watch", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aiops-lab-operator
+  namespace: aiops-lab
+subjects:
+  - kind: ServiceAccount
+    name: aiops-plugin
+    namespace: aiops-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aiops-lab-operator

@@ -1,0 +1,11 @@
+# 仓库统一保存 LF，避免 Shell、Docker 与生成协议在跨平台检出后出现换行差异。
+* text=auto eol=lf
+
+# 图片和未来可能加入的压缩数据必须保持二进制，禁止 Git 做换行转换。
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary
+*.gz binary
+*.parquet binary

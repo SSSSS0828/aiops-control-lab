@@ -1,0 +1,76 @@
+# 轻量覆盖用于已有监控栈的 4GB 服务器：核心闭环启动，重型观测组件暂不运行。
+# `!override` 明确替换基础端口；Web 与实验网关都只允许本机和 SSH 隧道访问。
+services:
+  web:
+    build:
+      args:
+        # 私有端口转发直接访问根路径，不再构建公网 /aiops/ 前缀。
+        VITE_BASE_PATH: /
+    ports: !override
+      - "127.0.0.1:8088:80"
+    # Web 只加入项目私网，从网络层切断现有公网 Nginx 对 aiops-web 的访问。
+    networks: !override
+      - default
+
+  control-plane:
+    environment:
+      # SSH 隧道提供加密传输；管理员动作仍需单独 Bearer Token 才能通过。
+      AIOPS_ADMIN_ACTIONS_ENABLED: "true"
+      AIOPS_ACCESS_MODE: private-forward
+      # 端口转发直接进入 Caddy，不经过可信反向代理，因此不得接受来源地址头。
+      AIOPS_TRUST_X_REAL_IP: "false"
+      # 复用服务器现有 Prometheus；当前主机未运行 Loki，因此显式关闭日志查询源。
+      PROMETHEUS_URL: http://devops-prometheus:9090
+      LOKI_URL: ""
+      # 阶段六由宿主机 systemd Agent 主动连接；真实写操作保持关闭。
+      AIOPS_AGENT_GRPC_ENABLED: "true"
+      AIOPS_REAL_ACTIONS_MODE: observe_only
+      AIOPS_GRPC_SERVER_CERT: /run/aiops-pki/server.crt
+      AIOPS_GRPC_SERVER_KEY: /run/aiops-pki/server.key
+      AIOPS_GRPC_CLIENT_CA: /run/aiops-pki/ca.crt
+    build:
+      # 轻量部署面向国内云主机，使用低延迟镜像避免构建依赖长时间阻塞。
+      args:
+        PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+    networks:
+      default: {}
+      devops-public:
+        aliases:
+          - aiops-control-plane
+      monitoring-bridge:
+        # 旧 Prometheus 容器的嵌入式 DNS 已失效，独立私网固定地址避免重建时目标漂移。
+        ipv4_address: 172.30.0.2
+    ports:
+      # 宿主机 Agent 只通过回环地址连接，不向公网或云安全组暴露。
+      - "127.0.0.1:9443:9443"
+    volumes:
+      - ../runtime/pki/control-plane:/run/aiops-pki:ro
+
+  lab-api:
+    build:
+      args:
+        PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+
+  lab-gateway:
+    ports: !override
+      - "127.0.0.1:18080:8080"
+
+  # 带 profile 的服务只有显式指定 --profile observability 时才会启动。
+  # 服务器已经运行 Prometheus/Grafana，避免重复组件争夺有限内存。
+  prometheus:
+    profiles: ["observability"]
+
+  loki:
+    profiles: ["observability"]
+
+  otel-collector:
+    profiles: ["observability"]
+
+networks:
+  # 控制面仅为读取现有 Prometheus 加入该网络；Web 不加入，不能被公网入口解析。
+  devops-public:
+    external: true
+    name: devops-lab_default
+  monitoring-bridge:
+    external: true
+    name: aiops-monitoring

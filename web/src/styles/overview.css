@@ -1,0 +1,119 @@
+/* 业务页面布局：每组选择器只服务一个清晰的控制台视图。 */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.metric-card {
+  padding: 20px;
+}
+.metric-card span,
+.metric-card strong {
+  display: block;
+}
+.metric-card span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.metric-card strong {
+  margin-top: 15px;
+  font:
+    500 32px ui-monospace,
+    monospace;
+}
+.metric-card.cyan strong {
+  color: var(--cyan);
+}
+.metric-card.amber strong {
+  color: var(--orange);
+}
+.metric-card.green strong {
+  color: var(--lime);
+}
+.metric-card.violet strong {
+  color: #b49cff;
+}
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.table-list,
+.capability-summary {
+  padding: 8px;
+}
+.table-row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  color: inherit;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.table-row strong {
+  font-size: 11px;
+}
+.table-row small,
+.table-row em {
+  color: var(--muted);
+  font-size: 9px;
+  font-style: normal;
+}
+.status-dot {
+  width: 6px;
+  height: 22px;
+  background: var(--orange);
+}
+.status-dot.resolved {
+  background: var(--lime);
+}
+.capability-summary > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.capability-summary strong {
+  font-size: 11px;
+}
+.capability-summary small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 9px;
+}
+.flow-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-top: 14px;
+  border: 1px solid var(--line);
+}
+.flow-strip div {
+  padding: 17px;
+  border-right: 1px solid var(--line);
+}
+.flow-strip div:last-child {
+  border-right: 0;
+}
+.flow-strip b,
+.flow-strip strong,
+.flow-strip small {
+  display: block;
+}
+.flow-strip b {
+  color: var(--cyan);
+  font:
+    9px ui-monospace,
+    monospace;
+}
+.flow-strip strong {
+  margin: 8px 0 4px;
+  font-size: 12px;
+}
+.flow-strip small {
+  color: var(--muted);
+  font-size: 9px;
+}

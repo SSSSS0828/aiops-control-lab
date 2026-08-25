@@ -1,0 +1,158 @@
+# 单机默认部署针对 4 核 4GB 服务器设置资源上限，避免观测系统反向拖垮宿主机。
+name: aiops-lab
+
+services:
+  web:
+    build: ../web
+    ports:
+      # 默认只绑定宿主机回环地址；远程访问必须显式使用 SSH 端口转发。
+      - "127.0.0.1:8088:80"
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    mem_limit: 96m
+    restart: unless-stopped
+
+  control-plane:
+    build:
+      context: ..
+      dockerfile: control-plane/Dockerfile
+    environment:
+      AIOPS_AGENT_URL: http://agent:9105
+      # 控制面与 Agent 共享的 HMAC 密钥只从 .env 注入，不能写进镜像或日志。
+      AIOPS_AGENT_SHARED_SECRET: ${AIOPS_AGENT_SHARED_SECRET:?请配置至少 32 字符的 Agent 共享密钥}
+      AIOPS_PLUGIN_ROOT: /plugins
+      AIOPS_PLUGIN_RUNTIME_ROOT: /tmp/aiops-plugins
+      AIOPS_ADMIN_TOKEN: ${AIOPS_ADMIN_TOKEN:-}
+      AIOPS_LAB_REAL_FAULTS: "true"
+      AIOPS_LAB_API_URL: http://lab-api:8080
+      # 该令牌只保护 Compose 私网内的实验故障端点，与管理员及 Agent 密钥分离。
+      AIOPS_LAB_CONTROL_TOKEN: ${AIOPS_LAB_CONTROL_TOKEN:?请配置独立的实验控制令牌}
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      # 真实资产默认只观察；只有完成浸泡验证后才能人工改为 approval_only。
+      AIOPS_REAL_ACTIONS_MODE: ${AIOPS_REAL_ACTIONS_MODE:-observe_only}
+      AIOPS_AGENT_GRPC_ENABLED: ${AIOPS_AGENT_GRPC_ENABLED:-false}
+      AIOPS_AGENT_GRPC_LISTEN: 0.0.0.0:9443
+      AIOPS_AGENT_CERT_IDENTITIES: tencent-lab-01=aiops-agent-tencent-lab-01
+      DATABASE_URL: postgresql://aiops:${POSTGRES_PASSWORD:-change-me-in-production}@postgres:5432/aiops
+    depends_on:
+      agent:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    mem_limit: 512m
+    restart: unless-stopped
+
+  agent:
+    build: ../agent
+    environment:
+      AIOPS_AGENT_LISTEN: 0.0.0.0:9105
+      AIOPS_PROC_ROOT: /host/proc
+      # Agent 缺少共享密钥会拒绝启动，避免意外退化为匿名执行端点。
+      AIOPS_AGENT_SHARED_SECRET: ${AIOPS_AGENT_SHARED_SECRET:?请配置至少 32 字符的 Agent 共享密钥}
+    volumes:
+      - /proc:/host/proc:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9105/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    mem_limit: 96m
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=2GB
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    mem_limit: 512m
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.4.2
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - ./loki.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    mem_limit: 512m
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.121.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-collector.yaml:/etc/otelcol/config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    mem_limit: 256m
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: aiops
+      POSTGRES_USER: aiops
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-in-production}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiops -d aiops"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 384m
+    restart: unless-stopped
+
+  lab-api:
+    build: ../lab/app
+    container_name: lab-api
+    environment:
+      REDIS_URL: redis://lab-redis:6379/0
+      # 缺失令牌时实验控制端点安全关闭，普通健康和业务接口仍可读取。
+      AIOPS_LAB_CONTROL_TOKEN: ${AIOPS_LAB_CONTROL_TOKEN:?请配置独立的实验控制令牌}
+    depends_on:
+      lab-redis:
+        condition: service_healthy
+    mem_limit: 128m
+    restart: unless-stopped
+
+  lab-redis:
+    image: redis:7.4-alpine
+    container_name: lab-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    mem_limit: 96m
+    restart: unless-stopped
+
+  lab-gateway:
+    image: nginx:1.27-alpine
+    container_name: lab-gateway
+    ports:
+      # 故障实验业务入口也不暴露到公网，仅供服务器本机验证。
+      - "127.0.0.1:18080:8080"
+    volumes:
+      - ../lab/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - lab-api
+    mem_limit: 64m
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  loki-data:

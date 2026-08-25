@@ -1,0 +1,4 @@
+# 构建产物和依赖目录不属于手写源码，避免格式检查扫描生成文件。
+dist
+node_modules
+pnpm-lock.yaml

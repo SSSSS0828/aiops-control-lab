@@ -1,0 +1,254 @@
+/* 真实资产、节点、拓扑、遥测与插件目录页面样式。 */
+.asset-grid,
+.plugin-grid,
+.lab-scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+}
+.asset-card,
+.plugin-card,
+.scenario-card {
+  padding: 20px;
+}
+.asset-card header,
+.plugin-card header,
+.approval-card header {
+  display: flex;
+  justify-content: space-between;
+}
+.asset-kind {
+  color: var(--cyan);
+  font:
+    9px ui-monospace,
+    monospace;
+  text-transform: uppercase;
+}
+.asset-card > code,
+.plugin-card > small {
+  color: #71859e;
+  font-size: 10px;
+}
+.asset-card dl,
+.scenario-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+.asset-card dl div,
+.scenario-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 10px;
+}
+.asset-card dt,
+.scenario-card dt {
+  color: var(--muted);
+}
+.asset-card dd,
+.scenario-card dd {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+}
+.asset-card footer,
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.asset-card footer span,
+.tag-list span {
+  padding: 5px 7px;
+  background: rgba(92, 225, 230, 0.05);
+  color: #8ea2ba;
+  font-size: 9px;
+}
+.observe-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 159, 90, 0.3);
+  color: var(--orange);
+  background: rgba(255, 159, 90, 0.05);
+  font-size: 10px;
+}
+.observe-banner span {
+  color: var(--muted);
+}
+.node-strip {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.node-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 16px 20px;
+}
+.node-card div strong,
+.node-card div small {
+  display: block;
+}
+.node-card small,
+.node-card code {
+  color: var(--muted);
+  font-size: 9px;
+}
+.node-card > small {
+  grid-column: 2;
+}
+.topology-canvas {
+  padding: 42px 28px;
+}
+.topology-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.topology-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.topology-step > b {
+  color: #52667c;
+  font:
+    8px ui-monospace,
+    monospace;
+}
+.topology-node {
+  width: 190px;
+  min-height: 130px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: 20px;
+  border: 1px solid rgba(189, 255, 100, 0.26);
+  text-align: center;
+}
+.topology-node.degraded {
+  border-color: var(--orange);
+}
+.topology-node span,
+.topology-node code {
+  color: var(--muted);
+  font:
+    9px ui-monospace,
+    monospace;
+}
+.topology-node strong {
+  margin: 10px 0;
+}
+.edge-list {
+  max-width: 700px;
+  margin: 40px auto 0;
+}
+.edge-list div {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 18px;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 10px;
+}
+.edge-list span {
+  color: var(--cyan);
+}
+.topology-node-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.topology-node-grid .topology-node {
+  width: auto;
+}
+.telemetry-grid {
+  margin-bottom: 14px;
+}
+.telemetry-chart-card > small {
+  display: block;
+  padding: 0 22px 18px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.metric-sparkline {
+  width: calc(100% - 44px);
+  height: 150px;
+  margin: 18px 22px;
+  color: var(--cyan);
+  background: linear-gradient(180deg, rgba(92, 225, 230, 0.04), transparent);
+}
+.sparkline-empty {
+  display: grid;
+  height: 150px;
+  place-items: center;
+  color: var(--muted);
+  font-size: 10px;
+}
+.health-target-list,
+.rule-list {
+  padding: 8px;
+}
+.health-target-list > div,
+.rule-list > div {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 7px 10px;
+  padding: 11px;
+  border-bottom: 1px solid var(--line);
+}
+.health-target-list strong,
+.rule-list strong {
+  font-size: 10px;
+}
+.health-target-list small,
+.rule-list small,
+.rule-list code {
+  color: var(--muted);
+  font-size: 8px;
+}
+.rule-list small {
+  grid-column: 2 / -1;
+}
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.source-card {
+  padding: 19px;
+}
+.evidence-table {
+  padding: 8px;
+}
+.evidence-table > div {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 7px 14px;
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.evidence-table span {
+  color: var(--cyan);
+  font:
+    9px ui-monospace,
+    monospace;
+}
+.evidence-table strong {
+  font-size: 11px;
+}
+.evidence-table code,
+.evidence-table small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}

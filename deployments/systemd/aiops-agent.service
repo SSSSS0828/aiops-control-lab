@@ -1,0 +1,38 @@
+# AIOps Agent systemd 单元；安装脚本会复制到 /etc/systemd/system。
+[Unit]
+Description=AIOps 节点采集与受控执行 Agent
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/aiops-agent
+Environment=AIOPS_AGENT_LISTEN=127.0.0.1:9105
+Environment=AIOPS_DOCKER_SOCKET=/var/run/docker.sock
+Environment=AIOPS_PROC_ROOT=/proc
+Environment=AIOPS_NODE_ID=tencent-lab-01
+Environment=AIOPS_MONITORED_COMPOSE_PROJECT=devops-lab
+Environment=AIOPS_CONTROL_GRPC_ENDPOINT=127.0.0.1:9443
+Environment=AIOPS_CONTROL_GRPC_SERVER_NAME=aiops-control-plane
+Environment=AIOPS_AGENT_CA_FILE=/etc/aiops/pki/ca.crt
+Environment=AIOPS_AGENT_CERT_FILE=/etc/aiops/pki/agent.crt
+Environment=AIOPS_AGENT_KEY_FILE=/etc/aiops/pki/agent.key
+Environment=AIOPS_REAL_ACTIONS_MODE=observe_only
+# 安装脚本以 0600 权限创建该文件，避免把密钥直接写入可公开的 unit 文件。
+EnvironmentFile=/etc/aiops/agent.env
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=15
+
+# 阶段一需要 Docker Socket 权限，因此使用 root；生产演进必须改为 Socket Proxy 或特权助手。
+User=root
+Group=root
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/run
+
+[Install]
+WantedBy=multi-user.target

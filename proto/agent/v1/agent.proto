@@ -1,0 +1,97 @@
+// Agent 与控制面之间的主动连接协议。
+//
+// 安全边界：Agent 只建立出站 mTLS 连接；控制面根据客户端证书和 hello.node_id
+// 同时校验传输身份与业务身份。任务仍保留批准内容哈希、HMAC、nonce 和有效期，
+// 避免仅依赖传输层认证。
+syntax = "proto3";
+
+package aiops.agent.v1;
+
+option go_package = "github.com/aiops-lab/aiops-agent/gen/agent/v1;agentv1";
+
+// ControlPlaneGateway 承载遥测上报、心跳和后续获批任务下发。
+service ControlPlaneGateway {
+  rpc Connect(stream AgentMessage) returns (stream ControlMessage);
+}
+
+// AgentHello 是每条连接的首帧，instance_id 用于区分进程重启。
+message AgentHello {
+  string node_id = 1;
+  string agent_version = 2;
+  string instance_id = 3;
+  int64 started_unix_ms = 4;
+}
+
+// MetricPoint 是一个可直接转换为 Prometheus 样本的瞬时值。
+message MetricPoint {
+  string name = 1;
+  double value = 2;
+  map<string, string> labels = 3;
+  int64 collected_unix_ms = 4;
+}
+
+// AssetSnapshot 描述本轮发现的主机、容器或服务状态。
+message AssetSnapshot {
+  string asset_id = 1;
+  string node_id = 2;
+  string kind = 3;
+  string name = 4;
+  string status = 5;
+  map<string, string> attributes = 6;
+}
+
+// TopologyLink 描述有向关系；weight 越高，RCA 越重视其传播方向。
+message TopologyLink {
+  string source_asset_id = 1;
+  string target_asset_id = 2;
+  string relation = 3;
+  double weight = 4;
+  string source = 5;
+}
+
+// TelemetryBatch 是一个不可拆分的采集批次，sequence 在单个 Agent 实例内单调递增。
+message TelemetryBatch {
+  uint64 sequence = 1;
+  int64 collected_unix_ms = 2;
+  repeated MetricPoint metrics = 3;
+  repeated AssetSnapshot assets = 4;
+  repeated TopologyLink topology = 5;
+}
+
+// ActionResult 是 Agent 对获批任务的最终审计结果。
+message ActionResult {
+  string task_id = 1;
+  bool succeeded = 2;
+  string message = 3;
+  int64 finished_unix_ms = 4;
+}
+
+// AgentMessage 使用 oneof 明确帧类型，拒绝语义含糊的任意字典。
+message AgentMessage {
+  oneof payload {
+    AgentHello hello = 1;
+    TelemetryBatch telemetry = 2;
+    ActionResult action_result = 3;
+  }
+}
+
+// ActionTask 只允许注册动作，不携带任意 Shell 字符串。
+message ActionTask {
+  string task_id = 1;
+  string idempotency_key = 2;
+  string approved_hash = 3;
+  string action_type = 4;
+  string target = 5;
+  map<string, string> arguments = 6;
+  int64 expires_unix_ms = 7;
+  string risk = 8;
+  string nonce = 9;
+  string signature = 10;
+}
+
+// ControlMessage 确认遥测序列，并可在同一安全连接上下发获批任务。
+message ControlMessage {
+  uint64 acknowledged_sequence = 1;
+  repeated ActionTask tasks = 2;
+  string message = 3;
+}
