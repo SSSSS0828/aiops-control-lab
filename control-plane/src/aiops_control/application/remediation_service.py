@@ -1,4 +1,4 @@
-"""人工审批和修复执行应用服务。
+"""人工审批、修复执行和业务恢复验证应用服务。
 
 这是系统安全边界中的关键模块：只有内容哈希一致、审批未过期且幂等键未执行过，
 修复步骤才会被交给执行端口。每个关键判断都在代码旁使用中文解释。
@@ -19,7 +19,7 @@ from aiops_control.domain.models import (
     new_id,
     utc_now,
 )
-from aiops_control.ports.execution import ActionDispatcher
+from aiops_control.ports.execution import ActionDispatcher, RecoveryVerifier
 from aiops_control.ports.repositories import IncidentRepository, RemediationRepository
 
 
@@ -31,11 +31,13 @@ class RemediationApplicationService:
         incident_repository: IncidentRepository,
         remediation_repository: RemediationRepository,
         dispatcher: ActionDispatcher,
+        recovery_verifier: RecoveryVerifier | None = None,
         real_actions_mode: str = "observe_only",
     ) -> None:
         self._incidents = incident_repository
         self._remediations = remediation_repository
         self._dispatcher = dispatcher
+        self._recovery_verifier = recovery_verifier
         self._real_action_policy = RealActionPolicy(real_actions_mode)
 
     def approve_and_execute(
@@ -130,6 +132,15 @@ class RemediationApplicationService:
                 break
             completed_steps.append(step)
 
+        verification: dict[str, object] | None = None
+        if (
+            succeeded
+            and self._recovery_verifier is not None
+            and incident.asset_id.startswith("lab-")
+        ):
+            verification = self._recovery_verifier.verify(incident.asset_id)
+            succeeded = bool(verification.get("healthy"))
+
         # 只有失败前已经成功且显式声明回滚动作的步骤才进入反向补偿。
         # 反向顺序对应事务补偿语义：后执行的变更必须先撤销，避免依赖关系倒置。
         rollback_outputs: list[dict[str, str | bool]] = []
@@ -144,6 +155,7 @@ class RemediationApplicationService:
         action_run.output = {
             "steps": step_outputs,
             "rollback": rollback_outputs,
+            "verification": verification,
         }
         action_run.finished_at = utc_now()
         if succeeded:

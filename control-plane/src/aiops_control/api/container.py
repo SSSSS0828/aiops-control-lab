@@ -18,6 +18,7 @@ from aiops_control.adapters.grpc_plugin_runtime import GrpcPluginRuntime
 from aiops_control.adapters.hashing_embeddings import HashingEmbeddingProvider
 from aiops_control.adapters.http_agent_dispatcher import HttpAgentDispatcher
 from aiops_control.adapters.http_lab_fault_injector import HttpLabFaultInjector
+from aiops_control.adapters.lab_health_probe import HttpLabHealthProbe
 from aiops_control.adapters.loki_query import LokiRangeQuery
 from aiops_control.adapters.memory_repository import InMemoryRepository
 from aiops_control.adapters.openai_compatible_llm import OpenAICompatibleDiagnosticModel
@@ -57,6 +58,7 @@ class ApplicationContainer:
     plugin_runtime: GrpcPluginRuntime | None
     plugin_root: Path | None
     fault_injector: HttpLabFaultInjector | None
+    lab_health_probe: HttpLabHealthProbe | None
     lab_rate_limiter: SlidingWindowRateLimiter
     admin_token: str | None
     admin_actions_enabled: bool
@@ -159,13 +161,6 @@ def build_container() -> ApplicationContainer:
     dispatcher = (
         HttpAgentDispatcher(agent_url, agent_shared_secret) if agent_url else SafeDemoDispatcher()
     )
-    remediation_service = RemediationApplicationService(
-        incident_repository=repository,
-        remediation_repository=repository,
-        dispatcher=dispatcher,
-        real_actions_mode=real_actions_mode,
-    )
-
     plugin_root_value = os.getenv("AIOPS_PLUGIN_ROOT")
     plugin_root = Path(plugin_root_value) if plugin_root_value else None
     plugin_runtime = (
@@ -178,15 +173,26 @@ def build_container() -> ApplicationContainer:
     )
 
     real_faults_enabled = os.getenv("AIOPS_LAB_REAL_FAULTS", "false").lower() == "true"
+    lab_api_url = os.getenv("AIOPS_LAB_API_URL", "")
+    lab_health_probe = (
+        HttpLabHealthProbe(lab_api_url) if real_faults_enabled and lab_api_url else None
+    )
     fault_injector = (
         HttpLabFaultInjector(
             agent_url,
             agent_shared_secret,
-            os.getenv("AIOPS_LAB_API_URL", ""),
+            lab_api_url,
             os.getenv("AIOPS_LAB_CONTROL_TOKEN", ""),
         )
         if agent_url and real_faults_enabled
         else None
+    )
+    remediation_service = RemediationApplicationService(
+        incident_repository=repository,
+        remediation_repository=repository,
+        dispatcher=dispatcher,
+        recovery_verifier=lab_health_probe,
+        real_actions_mode=real_actions_mode,
     )
     metric_store = AgentMetricStore()
     allowed_identities = _parse_agent_identities(
@@ -228,6 +234,7 @@ def build_container() -> ApplicationContainer:
         plugin_runtime=plugin_runtime,
         plugin_root=plugin_root,
         fault_injector=fault_injector,
+        lab_health_probe=lab_health_probe,
         lab_rate_limiter=SlidingWindowRateLimiter(limit=3, window_seconds=60),
         admin_token=os.getenv("AIOPS_ADMIN_TOKEN"),
         # 明文 HTTP 公网演示必须关闭管理员写接口，避免 Bearer Token 在链路中泄露。

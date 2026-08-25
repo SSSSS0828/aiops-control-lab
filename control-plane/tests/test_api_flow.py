@@ -6,6 +6,35 @@ from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
 from aiops_control.api.app import create_app
+from aiops_control.domain.fault_scenarios import LabObservation
+
+
+class RecordingFaultInjector:
+    """模拟真实故障注入器，并记录未通过探测时的恢复调用。"""
+
+    def __init__(self) -> None:
+        self.reset_targets: list[str] = []
+
+    def inject(self, scenario: str) -> str:
+        assert scenario == "dependency_unavailable"
+        return "container:lab-redis"
+
+    def reset(self, target: str) -> None:
+        self.reset_targets.append(target)
+
+
+class FailedDependencyProbe:
+    """返回来自固定 HTTP 端点的真实式故障观测。"""
+
+    def observe_failure(self) -> LabObservation:
+        return LabObservation(
+            source="http-health-probe",
+            target="http://lab-api:8080/healthz",
+            healthy=False,
+            status_code=503,
+            latency_ms=12.5,
+            observed_at=datetime.now(UTC),
+        )
 
 
 def test_fault_to_approved_recovery_flow() -> None:
@@ -40,6 +69,24 @@ def test_fault_to_approved_recovery_flow() -> None:
 
         incidents = client.get("/api/v1/incidents").json()
         assert incidents[0]["status"] == "resolved"
+
+
+def test_dependency_fault_uses_observed_health_instead_of_fixture() -> None:
+    """Redis 故障必须返回固定健康端点的实际观测字段。"""
+
+    app = create_app()
+    app.state.container.fault_injector = RecordingFaultInjector()
+    app.state.container.lab_health_probe = FailedDependencyProbe()
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/labs/inject",
+            json={"scenario": "dependency_unavailable"},
+        )
+    assert response.status_code == 200
+    observation = response.json()["observation"]
+    assert observation["source"] == "http-health-probe"
+    assert observation["status_code"] == 503
+    assert observation["healthy"] is False
 
 
 def test_change_webhook_is_normalized_and_queryable(monkeypatch: MonkeyPatch) -> None:

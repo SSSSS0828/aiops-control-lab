@@ -13,7 +13,7 @@ export function AppShell({ path, children }: AppShellProps) {
   return (
     <div className="console-shell">
       <aside className="sidebar">
-        <a className="console-brand" href="#/overview">
+        <a className="console-brand" href="#/demo">
           <span>A·</span>
           <div>
             <strong>AIOPS CONTROL</strong>
@@ -21,21 +21,32 @@ export function AppShell({ path, children }: AppShellProps) {
           </div>
         </a>
         <nav aria-label="控制台导航">
-          {navigationGroups.map((group) => (
-            <section className="nav-group" key={group.label}>
-              <span>{group.label}</span>
-              {group.items.map((item) => (
-                <a
-                  className={activePage === item.id ? "active" : ""}
-                  href={`#${item.path}`}
-                  key={item.id}
-                >
-                  <i>{item.icon}</i>
-                  {item.label}
-                </a>
-              ))}
-            </section>
-          ))}
+          {navigationGroups.map((group) => {
+            const links = group.items.map((item) => (
+              <a
+                className={activePage === item.id ? "active" : ""}
+                href={`#${item.path}`}
+                key={item.id}
+              >
+                <i>{item.icon}</i>
+                {item.label}
+              </a>
+            ));
+            if (group.advanced) {
+              return (
+                <details className="nav-group nav-advanced" key={group.label}>
+                  <summary>{group.label}</summary>
+                  {links}
+                </details>
+              );
+            }
+            return (
+              <section className="nav-group" key={group.label}>
+                <span>{group.label}</span>
+                {links}
+              </section>
+            );
+          })}
         </nav>
         <div className="private-access-note">
           <span className="live-dot" />

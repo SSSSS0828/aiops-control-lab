@@ -13,6 +13,7 @@ import "./styles/inventory.css";
 import "./styles/incident-diagnostics.css";
 import "./styles/sre-settings.css";
 import "./styles/pages.css";
+import "./styles/portfolio-demo.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

@@ -24,6 +24,9 @@ services:
       AIOPS_PLUGIN_ROOT: /plugins
       AIOPS_PLUGIN_RUNTIME_ROOT: /tmp/aiops-plugins
       AIOPS_ADMIN_TOKEN: ${AIOPS_ADMIN_TOKEN:-}
+      AIOPS_LLM_BASE_URL: ${AIOPS_LLM_BASE_URL:-}
+      AIOPS_LLM_API_KEY: ${AIOPS_LLM_API_KEY:-}
+      AIOPS_LLM_MODEL: ${AIOPS_LLM_MODEL:-}
       AIOPS_LAB_REAL_FAULTS: "true"
       AIOPS_LAB_API_URL: http://lab-api:8080
       # 该令牌只保护 Compose 私网内的实验故障端点，与管理员及 Agent 密钥分离。

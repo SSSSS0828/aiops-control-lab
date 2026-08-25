@@ -7,6 +7,7 @@ import { ApprovalsPage } from "./pages/ApprovalsPage";
 import { AssetsPage } from "./pages/AssetsPage";
 import { AuditPage } from "./pages/AuditPage";
 import { DiagnosticsPage } from "./pages/DiagnosticsPage";
+import { DemoPage } from "./pages/DemoPage";
 import { IncidentsPage } from "./pages/IncidentsPage";
 import { LabPage } from "./pages/LabPage";
 import { OverviewPage } from "./pages/OverviewPage";
@@ -17,6 +18,7 @@ import { TelemetryPage } from "./pages/TelemetryPage";
 import { TopologyPage } from "./pages/TopologyPage";
 
 const pages = {
+  demo: <DemoPage />,
   overview: <OverviewPage />,
   assets: <AssetsPage />,
   topology: <TopologyPage />,

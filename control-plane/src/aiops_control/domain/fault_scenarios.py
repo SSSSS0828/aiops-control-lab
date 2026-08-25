@@ -7,6 +7,7 @@
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,6 +24,18 @@ class FaultScenario:
     root_cause: str
     injection_kind: str
     expected_remediation: str
+
+
+@dataclass(frozen=True, slots=True)
+class LabObservation:
+    """故障注入后从固定健康端点得到的真实观测。"""
+
+    source: str
+    target: str
+    healthy: bool
+    status_code: int
+    latency_ms: float
+    observed_at: datetime
 
 
 # 真值目录是代码评审边界：只有这里注册的场景才能从公网实验入口触发。

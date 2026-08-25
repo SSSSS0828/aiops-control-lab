@@ -31,6 +31,18 @@ class RollbackRecordingDispatcher:
         )
 
 
+class FailedRecoveryVerifier:
+    """模拟容器动作成功但业务健康端点仍然失败。"""
+
+    def verify(self, target: str) -> dict[str, object]:
+        return {
+            "source": "http-health-probe",
+            "target": target,
+            "healthy": False,
+            "status_code": 503,
+        }
+
+
 def create_services() -> tuple[
     InMemoryRepository,
     IncidentApplicationService,
@@ -139,3 +151,36 @@ def test_failed_verification_runs_explicit_rollback() -> None:
             "message": "restore_change 已处理",
         }
     ]
+
+
+def test_business_recovery_probe_controls_incident_resolution() -> None:
+    """容器动作成功但依赖健康复检失败时不能关闭 Incident。"""
+
+    repository = InMemoryRepository()
+    incidents = IncidentApplicationService(
+        RollingZScoreDetector(minimum_samples=5), repository, repository
+    )
+    remediations = RemediationApplicationService(
+        repository,
+        repository,
+        SafeDemoDispatcher(),
+        recovery_verifier=FailedRecoveryVerifier(),
+    )
+    outcome = incidents.evaluate_signal(
+        Signal("lab-redis", "service_health", 0.0, datetime.now(UTC)),
+        [1.0] * 6,
+    )
+    assert outcome.plan is not None
+
+    action = remediations.approve_and_execute(
+        outcome.plan.id,
+        "admin",
+        outcome.plan.content_hash(),
+        "demo-request-health-verification",
+    )
+
+    assert action.status is ActionStatus.FAILED
+    assert action.output["verification"]["status_code"] == 503
+    incident = repository.get_incident(outcome.plan.incident_id)
+    assert incident is not None
+    assert incident.status is IncidentStatus.FAILED

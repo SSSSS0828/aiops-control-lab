@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 function currentPath(): string {
-  return window.location.hash.replace(/^#/, "") || "/overview";
+  return window.location.hash.replace(/^#/, "") || "/demo";
 }
 
 export function useHashRoute(): string {

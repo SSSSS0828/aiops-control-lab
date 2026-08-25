@@ -54,6 +54,16 @@ export interface EvaluationOutcome {
   incident: Incident | null;
   plan: RemediationPlan | null;
   ground_truth?: import("../lab/types").FaultScenario;
+  observation?: LabObservation;
+}
+
+export interface LabObservation {
+  source: string;
+  target: string;
+  healthy: boolean;
+  status_code: number;
+  latency_ms: number;
+  observed_at: string;
 }
 
 export interface ActionRun {
@@ -69,5 +79,14 @@ export interface ActionRun {
   output: {
     steps?: Array<{ message: string; succeeded: boolean }>;
     rollback?: Array<{ message: string; succeeded: boolean }>;
+    verification?: {
+      source: string;
+      target: string;
+      probe_target: string;
+      healthy: boolean;
+      status_code: number;
+      latency_ms: number;
+      observed_at: string;
+    } | null;
   };
 }

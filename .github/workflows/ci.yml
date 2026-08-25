@@ -87,3 +87,21 @@ jobs:
           python scripts/check_chinese_docs.py
           docker compose -f deployments/compose.yaml config --quiet
           docker compose -f deployments/compose.yaml -f deployments/compose.lite.yaml config --quiet
+
+  portfolio-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: 启动并验收 Redis 故障闭环
+        env:
+          AIOPS_AGENT_SHARED_SECRET: ci-agent-secret-0123456789abcdef
+          AIOPS_LAB_CONTROL_TOKEN: ci-lab-token-0123456789abcdef
+          POSTGRES_PASSWORD: ci-postgres-password
+        run: |
+          trap 'docker compose -f deployments/compose.yaml down -v' EXIT
+          docker compose -f deployments/compose.yaml up --build -d
+          python scripts/test_portfolio_demo.py
+          docker compose -f deployments/compose.yaml ps
