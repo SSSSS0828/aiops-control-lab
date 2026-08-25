@@ -18,6 +18,9 @@ app = FastAPI(title="AIOps Fault Lab API")
 redis_client = Redis.from_url(
     os.getenv("REDIS_URL", "redis://lab-redis:6379/0"),
     decode_responses=True,
+    # 依赖中断必须在健康探针超时前转成明确的 HTTP 503，不能让上游只看到连接超时。
+    socket_connect_timeout=0.5,
+    socket_timeout=0.5,
 )
 fault_state = FaultState()
 lab_control_token = os.getenv("AIOPS_LAB_CONTROL_TOKEN", "")

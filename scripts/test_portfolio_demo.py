@@ -49,7 +49,7 @@ def main() -> None:
     )
     observation = injected["observation"]
     assert observation["source"] == "http-health-probe"
-    assert observation["status_code"] == 503
+    assert observation["status_code"] == 503, observation
     assert observation["healthy"] is False
 
     plan = request_json(f"/api/v1/plans/{injected['plan']['id']}")
@@ -75,7 +75,7 @@ def main() -> None:
     )
     assert approved["status"] == "succeeded"
     assert approved["output"]["verification"]["healthy"] is True
-    assert approved["output"]["verification"]["status_code"] == 200
+    assert approved["output"]["verification"]["status_code"] == 200, approved
 
     incidents = request_json("/api/v1/incidents")
     assert incidents[0]["status"] == "resolved"
