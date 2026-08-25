@@ -1,0 +1,137 @@
+/* 多页面控制台骨架：固定侧栏、顶部边界提示和统一内容区域。 */
+.console-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+}
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 248px;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 14px;
+  border-right: 1px solid var(--line);
+  background: rgba(5, 13, 23, 0.96);
+  z-index: 20;
+  overflow-y: auto;
+}
+.console-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 54px;
+  padding: 0 10px 20px;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+.console-brand > span {
+  color: var(--cyan);
+  font:
+    700 26px ui-monospace,
+    monospace;
+}
+.console-brand strong,
+.console-brand small {
+  display: block;
+  letter-spacing: 0.12em;
+}
+.console-brand strong {
+  font-size: 12px;
+}
+.console-brand small {
+  margin-top: 4px;
+  color: #607087;
+  font:
+    8px ui-monospace,
+    monospace;
+}
+.sidebar nav {
+  flex: 1;
+  padding-top: 15px;
+}
+.nav-group {
+  margin-bottom: 17px;
+}
+.nav-group > span {
+  display: block;
+  padding: 7px 11px;
+  color: #56677d;
+  font:
+    700 9px ui-monospace,
+    monospace;
+  letter-spacing: 0.16em;
+}
+.nav-group a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  color: #96a5b9;
+  text-decoration: none;
+  font-size: 12px;
+  transition: 140ms ease;
+}
+.nav-group a i {
+  width: 20px;
+  color: #60778f;
+  font:
+    normal 15px ui-monospace,
+    monospace;
+  text-align: center;
+}
+.nav-group a:hover {
+  color: #fff;
+  background: rgba(92, 225, 230, 0.04);
+}
+.nav-group a.active {
+  color: #fff;
+  border-color: rgba(92, 225, 230, 0.18);
+  background: rgba(92, 225, 230, 0.08);
+}
+.nav-group a.active i {
+  color: var(--cyan);
+}
+.private-access-note {
+  padding: 12px;
+  border: 1px solid rgba(189, 255, 100, 0.16);
+  color: var(--lime);
+  font-size: 11px;
+}
+.private-access-note small {
+  display: block;
+  margin: 6px 0 0 15px;
+  color: var(--muted);
+}
+.console-main {
+  grid-column: 2;
+  min-width: 0;
+}
+.console-topbar {
+  height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--line);
+  color: #6f8095;
+  background: rgba(7, 16, 28, 0.72);
+  font:
+    9px ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+}
+.global-observe-bar {
+  padding: 8px 28px;
+  border-bottom: 1px solid rgba(255, 159, 90, 0.22);
+  color: var(--orange);
+  background: rgba(255, 159, 90, 0.05);
+  font:
+    9px ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  text-align: right;
+}

@@ -1,0 +1,13 @@
+# 编译后复制为 plugin.yaml，并把 checksum 替换为入口二进制的真实 SHA-256。
+id: go-minimal
+name: Go 最小分析插件
+version: 0.1.0
+api_version: v1
+entrypoint: go-minimal
+checksum: sha256:0000000000000000000000000000000000000000000000000000000000000000
+capabilities:
+  - Analyzer
+permissions: []
+config_schema:
+  type: object
+  additionalProperties: false

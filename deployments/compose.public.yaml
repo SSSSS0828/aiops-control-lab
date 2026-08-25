@@ -1,0 +1,16 @@
+# 公网覆盖配置只发布 Caddy 的 80/443；控制面、Agent 和数据存储仍留在内部网络。
+services:
+  web:
+    environment:
+      AIOPS_SITE_ADDRESS: ${AIOPS_PUBLIC_DOMAIN:?必须设置公网域名}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

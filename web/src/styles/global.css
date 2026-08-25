@@ -1,0 +1,194 @@
+/* 全局视觉系统：只维护设计变量、页面骨架和跨功能通用组件。 */
+:root {
+  font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  color: #e7edf7;
+  background: #07101c;
+  font-synthesis: none;
+  --panel: rgba(15, 27, 44, 0.88);
+  --line: rgba(159, 178, 204, 0.17);
+  --muted: #8291a6;
+  --cyan: #5ce1e6;
+  --lime: #bdff64;
+  --orange: #ff9f5a;
+  --danger: #ff6376;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 70% -10%, #163455 0, transparent 38%), #07101c;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  height: 64px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(6, 14, 25, 0.78);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.brand-symbol {
+  color: var(--cyan);
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.topbar-status,
+.topbar-meta {
+  color: var(--muted);
+  font:
+    600 11px ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+}
+
+.topbar-meta {
+  justify-self: end;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 12px var(--lime);
+}
+
+main {
+  width: min(1500px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 54px 0 72px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 42px;
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font:
+    700 10px ui-monospace,
+    monospace;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 14px 0 0;
+  font-size: clamp(42px, 5vw, 72px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  font-weight: 620;
+}
+
+.metrics-strip {
+  display: flex;
+  border: 1px solid var(--line);
+  background: rgba(10, 22, 37, 0.6);
+}
+
+.metrics-strip div {
+  min-width: 110px;
+  padding: 20px 24px;
+  border-left: 1px solid var(--line);
+}
+
+.metrics-strip div:first-child {
+  border-left: 0;
+}
+
+.metrics-strip strong {
+  display: block;
+  color: var(--lime);
+  font:
+    500 26px ui-monospace,
+    monospace;
+}
+
+.metrics-strip span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(420px, 1.35fr) minmax(260px, 0.7fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.panel,
+.fault-panel {
+  min-height: 560px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-heading h2,
+.fault-panel h2 {
+  margin: 5px 0 0;
+  font-size: 19px;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--cyan);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.error-banner {
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 99, 118, 0.45);
+  background: rgba(255, 99, 118, 0.1);
+  color: #ffadba;
+  font-size: 12px;
+}

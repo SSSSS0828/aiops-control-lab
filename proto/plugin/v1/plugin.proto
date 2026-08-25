@@ -1,0 +1,18 @@
+// 插件公共协议使用 Struct 承载版本化数据，阶段一无需生成领域专用消息代码。
+syntax = "proto3";
+
+package aiops.plugin.v1;
+
+import "google/protobuf/struct.proto";
+
+// PluginService 是所有独立进程插件必须实现的稳定能力集合。
+service PluginService {
+  rpc Describe(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Health(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Discover(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Analyze(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Plan(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Execute(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Verify(google.protobuf.Struct) returns (google.protobuf.Struct);
+  rpc Rollback(google.protobuf.Struct) returns (google.protobuf.Struct);
+}

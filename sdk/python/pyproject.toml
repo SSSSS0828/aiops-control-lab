@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aiops-plugin-sdk"
+version = "0.1.0"
+description = "AIOps 独立进程插件 Python SDK"
+requires-python = ">=3.12"
+dependencies = [
+  "grpcio>=1.71,<2",
+  "protobuf>=5.29,<7",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aiops_plugin_sdk"]

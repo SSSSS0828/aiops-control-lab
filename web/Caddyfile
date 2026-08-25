@@ -1,0 +1,27 @@
+# 默认 HTTP 只应由 Compose 映射到宿主机回环地址，再通过 SSH 加密隧道访问。
+# 只有明确使用公网覆盖配置并提供真实域名时，才由 Caddy 自动申请 HTTPS 证书。
+{$AIOPS_SITE_ADDRESS::80} {
+  encode zstd gzip
+
+  header {
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+    Referrer-Policy strict-origin-when-cross-origin
+    Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+  }
+
+  handle /api/* {
+    reverse_proxy control-plane:8000
+  }
+
+  handle /healthz {
+    reverse_proxy control-plane:8000
+  }
+
+  handle {
+    root * /srv
+    try_files {path} /index.html
+    file_server
+  }
+}

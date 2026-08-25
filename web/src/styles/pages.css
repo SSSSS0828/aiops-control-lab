@@ -1,0 +1,52 @@
+/* 多业务页面在窄屏下共享的响应式布局规则。 */
+@media (max-width: 1100px) {
+  .metric-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .asset-grid,
+  .plugin-grid,
+  .lab-scenario-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .topology-flow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .topology-step {
+    flex-direction: column;
+  }
+  .topology-step > b {
+    transform: rotate(90deg);
+  }
+  .topology-node {
+    width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .two-column-grid,
+  .diagnostic-grid,
+  .incident-workbench,
+  .approval-grid,
+  .algorithm-groups {
+    grid-template-columns: 1fr;
+  }
+  .asset-grid,
+  .plugin-grid,
+  .lab-scenario-grid,
+  .source-grid {
+    grid-template-columns: 1fr;
+  }
+  .flow-strip {
+    grid-template-columns: 1fr;
+  }
+  .flow-strip div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .table-row {
+    grid-template-columns: 8px 1fr auto;
+  }
+  .table-row small {
+    display: none;
+  }
+}

@@ -1,0 +1,10 @@
+# 依赖必须在镜像内按 pnpm 锁文件重建，不能复制宿主机平台相关 node_modules。
+node_modules
+
+# dist 由当前源码在构建阶段产生，排除旧产物避免缓存误判。
+dist
+
+# 本地测试、编辑器和日志文件不进入静态站点镜像。
+coverage
+.eslintcache
+*.log

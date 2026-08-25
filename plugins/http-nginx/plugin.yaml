@@ -1,0 +1,22 @@
+# HTTP/Nginx 示例插件清单；checksum 在发布或源码变更后由脚本更新。
+id: http-nginx
+name: HTTP 与 Nginx 健康插件
+version: 0.1.0
+api_version: v1
+entrypoint: plugin.py
+checksum: sha256:f52d501653958023fbb518412ee594535614c69275ce2774157c6a8ef8191e92
+capabilities:
+  - DiscoveryProvider
+  - TelemetryProvider
+  - Analyzer
+  - ActionProvider
+permissions:
+  - network.http.outbound
+config_schema:
+  type: object
+  additionalProperties: false
+  properties:
+    url:
+      type: string
+      format: uri
+      description: 需要发现、分析和验证的 HTTP 健康地址。
