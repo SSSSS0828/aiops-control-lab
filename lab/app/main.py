@@ -5,6 +5,8 @@
 """
 
 import os
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeoutError
 from hmac import compare_digest
 from time import sleep
 
@@ -27,6 +29,11 @@ redis_client = Redis.from_url(
 )
 fault_state = FaultState()
 lab_control_token = os.getenv("AIOPS_LAB_CONTROL_TOKEN", "")
+# Docker 停止依赖容器后，内置 DNS 可能晚于 socket 超时返回；用有界线程池隔离健康探测。
+dependency_probe_executor = ThreadPoolExecutor(
+    max_workers=2,
+    thread_name_prefix="lab-redis-health",
+)
 
 
 class FaultActivationRequest(BaseModel):
@@ -58,8 +65,12 @@ def healthz() -> dict[str, str]:
     """同时验证 API 进程和 Redis 依赖。"""
 
     _apply_request_faults()
+    future = dependency_probe_executor.submit(redis_client.ping)
     try:
-        redis_client.ping()
+        future.result(timeout=0.75)
+    except FutureTimeoutError as error:
+        future.cancel()
+        raise HTTPException(status_code=503, detail="Redis 依赖探测超时") from error
     except RedisError as error:
         raise HTTPException(status_code=503, detail="Redis 依赖不可用") from error
     return {"status": "ok", "service": "lab-api", "dependency": "lab-redis"}
