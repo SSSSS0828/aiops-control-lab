@@ -1,0 +1,142 @@
+/* Incident、AI 诊断、审批和审计页面样式。 */
+.incident-workbench {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(480px, 1.3fr);
+  gap: 14px;
+}
+.incident-list-card,
+.incident-detail-card {
+  min-height: 620px;
+}
+.incident-detail-card .incident-detail > header {
+  padding-top: 22px;
+}
+.model-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+}
+.model-status-bar small {
+  color: var(--muted);
+}
+.diagnostic-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 14px;
+}
+.diagnostic-form,
+.diagnostic-answer {
+  min-height: 430px;
+  padding: 22px;
+}
+.diagnostic-form {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+.diagnostic-answer dl {
+  display: grid;
+  gap: 14px;
+}
+.diagnostic-answer dl div {
+  padding: 12px;
+  border-left: 2px solid var(--cyan);
+  background: #081421;
+}
+.diagnostic-answer dt {
+  color: var(--cyan);
+  font-size: 9px;
+}
+.diagnostic-answer dd {
+  margin: 7px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.diagnostic-answer code {
+  display: block;
+  margin: 6px 0;
+  padding: 8px;
+  color: #98aac0;
+  background: #07111e;
+  font-size: 9px;
+}
+.approval-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.approval-card {
+  padding: 22px;
+}
+.approval-card header code {
+  color: var(--muted);
+  font-size: 9px;
+}
+.hash-box {
+  margin: 15px 0;
+  padding: 11px;
+  background: #07111e;
+}
+.hash-box span,
+.hash-box code {
+  display: block;
+}
+.hash-box span {
+  color: var(--muted);
+  font-size: 9px;
+}
+.hash-box code {
+  margin-top: 7px;
+  color: var(--cyan);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+.approval-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 12px;
+  margin: 8px 0;
+  padding: 11px;
+  border: 1px dashed rgba(255, 159, 90, 0.3);
+  font-size: 10px;
+}
+.approval-step small {
+  grid-column: 1/-1;
+  color: var(--muted);
+}
+.approval-card button {
+  width: 100%;
+  margin-top: 12px;
+}
+.audit-list {
+  padding: 8px;
+}
+.audit-list > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 10px;
+  padding: 13px;
+  border-bottom: 1px solid var(--line);
+}
+.audit-list strong {
+  font-size: 10px;
+}
+.audit-list small,
+.audit-list code,
+.audit-list time {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 8px;
+}
+.plugin-card h3 {
+  margin: 18px 0 7px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.permissions span {
+  color: var(--orange);
+  background: rgba(255, 159, 90, 0.06);
+}

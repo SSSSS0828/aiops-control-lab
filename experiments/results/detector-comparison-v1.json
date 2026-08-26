@@ -1,0 +1,44 @@
+[
+  {
+    "detector_name": "rolling_zscore",
+    "dataset_version": "fault-series-v1",
+    "metrics": {
+      "true_positive": 6,
+      "false_positive": 2,
+      "true_negative": 618,
+      "false_negative": 34,
+      "precision": 0.75,
+      "recall": 0.15,
+      "false_positive_rate": 0.0032258064516129032
+    },
+    "average_score": 1.0127273888476267
+  },
+  {
+    "detector_name": "ewma",
+    "dataset_version": "fault-series-v1",
+    "metrics": {
+      "true_positive": 1,
+      "false_positive": 18,
+      "true_negative": 602,
+      "false_negative": 39,
+      "precision": 0.05263157894736842,
+      "recall": 0.025,
+      "false_positive_rate": 0.02903225806451613
+    },
+    "average_score": 1.212473963416411
+  },
+  {
+    "detector_name": "isolation_forest",
+    "dataset_version": "fault-series-v1",
+    "metrics": {
+      "true_positive": 24,
+      "false_positive": 105,
+      "true_negative": 515,
+      "false_negative": 16,
+      "precision": 0.18604651162790697,
+      "recall": 0.6,
+      "false_positive_rate": 0.1693548387096774
+    },
+    "average_score": 0.5086541292431478
+  }
+]

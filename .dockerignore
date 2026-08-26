@@ -1,0 +1,25 @@
+# 版本控制与本地编辑器元数据不进入任何根上下文镜像。
+.git
+.gitignore
+.idea
+.vscode
+
+# Python、Go 和测试工具缓存只服务本机验证，不能污染镜像构建上下文。
+**/__pycache__
+**/*.pyc
+**/.mypy_cache
+**/.pytest_cache
+**/.ruff_cache
+**/coverage.xml
+
+# 前端依赖和构建产物由 Web 多阶段镜像自行生成。
+**/node_modules
+web/dist
+
+# 运行时 Socket、离线实验大数据和临时工作文件不属于生产镜像输入。
+runtime
+experiments/data
+work
+
+# 控制面镜像只安装 Python SDK；Go SDK 在独立 CI 任务中构建。
+sdk/go

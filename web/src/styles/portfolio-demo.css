@@ -1,0 +1,105 @@
+/* 演练中心页面样式。 */
+.demo-flow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+}
+.demo-flow div {
+  padding: 15px;
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+}
+.demo-flow div:last-child {
+  border-right: 0;
+}
+.demo-flow div.active {
+  background: rgba(92, 225, 230, 0.08);
+  color: #fff;
+}
+.demo-flow span {
+  display: block;
+  color: var(--cyan);
+  font:
+    10px ui-monospace,
+    monospace;
+}
+.demo-flow strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+.demo-status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.demo-grid .console-card {
+  min-height: 340px;
+  padding: 24px;
+}
+.demo-grid h2 {
+  margin: 12px 0;
+}
+.demo-grid p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.demo-grid button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  border: 1px solid rgba(92, 225, 230, 0.4);
+  background: rgba(92, 225, 230, 0.12);
+  cursor: pointer;
+}
+.demo-grid button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+.demo-facts {
+  margin-top: 22px;
+}
+.demo-facts div {
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.demo-facts dt {
+  color: var(--muted);
+  font-size: 10px;
+}
+.demo-facts dd {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  font:
+    12px ui-monospace,
+    monospace;
+}
+.nav-advanced summary {
+  padding: 7px 11px;
+  color: #56677d;
+  cursor: pointer;
+  font:
+    700 9px ui-monospace,
+    monospace;
+  letter-spacing: 0.16em;
+}
+@media (max-width: 1050px) {
+  .demo-grid {
+    grid-template-columns: 1fr;
+  }
+  .demo-flow {
+    grid-template-columns: 1fr;
+  }
+  .demo-flow div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}

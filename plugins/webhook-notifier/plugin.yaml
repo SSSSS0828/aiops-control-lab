@@ -1,0 +1,22 @@
+# 通用 Webhook 通知插件只能访问环境变量配置的主机白名单。
+id: webhook-notifier
+name: 通用 Webhook 通知插件
+version: 0.1.0
+api_version: v1
+entrypoint: plugin.py
+checksum: sha256:8ccb14259daca410564eddc5cdefcae020d750f2d792b0720174655450abed62
+capabilities:
+  - Notifier
+  - ActionProvider
+permissions:
+  - network.http.outbound
+config_schema:
+  type: object
+  additionalProperties: false
+  required:
+    - endpoint
+  properties:
+    endpoint:
+      type: string
+      format: uri
+      description: 只允许清单配置的 HTTPS 通知目标。
